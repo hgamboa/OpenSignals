@@ -1,1 +1,1 @@
-In this folder is saved each record in a session. Each time OpenSignals is reinitiated, all files in this folder are eliminated.
+In this folder is saved each record in a session. Each time OpenSignals restarted, all files in this folder are eliminated.
