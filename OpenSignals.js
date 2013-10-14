@@ -41,9 +41,9 @@ $(function() {
 				changeYScale("up")
 			} else if (e.keyCode == 40) { //down arrow pressed
 				changeYScale("down")
-			} else if (e.keyCode == 187) { // zoom in (+)
+			} else if (e.keyCode == 187 | e.keyCode == 107) { // zoom in (+)
 				Zooming("in")
-			} else if (e.keyCode == 189) { //zoom out (-)
+			} else if (e.keyCode == 189 | e.keyCode == 109) { //zoom out (-)
 				Zooming("out")
 			}
 		}
