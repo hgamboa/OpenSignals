@@ -127,13 +127,13 @@ class ThreadArduino(threading.Thread):
 						try :
 							# Acquire data
 							if TempScale != self.t:
-								if self.SamplingRate == 100 and self.t <=3 or self.SamplingRate == 10 or self.SamplingRate == 1:
-									self.flot_xy = numpy.zeros((self.SamplingRate*self.xScale[self.t],2))
-									self.flot_xy[:,0] = numpy.arange(self.SamplingRate*self.xScale[self.t])
-									SizeCoef = self.SamplingRate*self.xScale[self.t]
+								TempScale = self.t
+								if self.SamplingRate == 100 and TempScale <=3 or self.SamplingRate == 10 or self.SamplingRate == 1:
+									self.flot_xy = numpy.zeros((self.SamplingRate*self.xScale[TempScale],2))
+									self.flot_xy[:,0] = numpy.arange(self.SamplingRate*self.xScale[TempScale])
+									SizeCoef = self.SamplingRate*self.xScale[TempScale]
 								else: SizeCoef = self.SCREEN_SIZE
-									
-							TempScale = self.t
+
 							decodedData = self.parent.recv()
 							if decodedData == 'END':
 								self.acquire = False
@@ -175,6 +175,7 @@ class ThreadArduino(threading.Thread):
 					
 					self.acquisitionFlag.clear()
 					self.file.close()
+					self.RT = {}
 					self.exit()
 					
 				

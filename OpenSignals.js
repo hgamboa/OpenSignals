@@ -41,9 +41,9 @@ $(function() {
 				changeYScale("up")
 			} else if (e.keyCode == 40) { //down arrow pressed
 				changeYScale("down")
-			} else if (e.keyCode == 187 | e.keyCode == 107) { // zoom in (+)
+			} else if (e.keyCode == 187) { // zoom in (+)
 				Zooming("in")
-			} else if (e.keyCode == 189 | e.keyCode == 109) { //zoom out (-)
+			} else if (e.keyCode == 189) { //zoom out (-)
 				Zooming("out")
 			}
 		}
@@ -372,9 +372,9 @@ function DisplayFiles(directories) {
 	})
 	
 	$("#cancel").click(function() {
+		$("#popMessage").hide();
 		$("#FileExplorer").fadeOut(500);
 		optionsMenuOpen = false
-		
 	});
 }
 $(function() {
@@ -481,18 +481,46 @@ $(function() {
 		if ($("#fileName").attr('value') == "") {
 			$("#popMessage").show();
 		}else {
+			
+			var path = $('#pathName').attr('value');
+			path = path.replace(/\\/g,"\\\\");
+			var file = $('#fileName').attr('value');
+			type=$("#fileFormat").find(":selected")[0].id
+			ws.send("checkFile('"+path+"','"+file+"','"+type+"')");
+		}
+	})
+})
+
+function FileExists(check) {
+	if (check) {
+		var r=confirm("There is already a file with the same name in this location!\n Do you want to replace it?");
+		if (r==true) {
 			var path = $('#pathName').attr('value');
 			path = path.replace(/\\/g,"\\\\");
 			var file = $('#fileName').attr('value');
 			type=$("#fileFormat").find(":selected")[0].id
 			ws.send("saveFile('"+path+"','"+file+"','"+type+"')");
+			$("#popMessageSaving").show();
 			$("#FileExplorer").fadeOut(200);
 			optionsMenuOpen = false
+			$("#popMessage").hide();
 		}
-	})
-	
-	
-})
+	} else {
+		var path = $('#pathName').attr('value');
+		path = path.replace(/\\/g,"\\\\");
+		var file = $('#fileName').attr('value');
+		type=$("#fileFormat").find(":selected")[0].id
+		ws.send("saveFile('"+path+"','"+file+"','"+type+"')");
+		$("#popMessageSaving").show();
+		$("#FileExplorer").fadeOut(200);
+		optionsMenuOpen = false
+		$("#popMessage").hide();
+	}
+
+}
+function FileSaved() {
+	$("#popMessageSaving").hide();
+}
 function SendDir() {
 	optionsMenuOpen = true
 	$("#FilesandFolders").empty();
@@ -586,6 +614,8 @@ function SetConfigurations(sets,dev) {
 			$("#DO"+d).attr("src","Img/new/botao_azul.png")
 		}
 	}
+	$("#MenuLogo").fadeIn(500);
+	$("#boxToFlip").fadeIn(500);
 	
 }
 
@@ -603,13 +633,15 @@ function changeYScale(UpOrDown) {
 	if (trSelected.length > 0) { //there is a plot selected
 		if (UpOrDown == 'up') {
 			for (tr=0;tr<trSelected.length;tr++) {
-				MaxOffset[trSelected[tr].id.slice(-1)]+=(limits[units[data[trSelected[tr].id.slice(-1)].id]][1]-limits[units[data[trSelected[tr].id.slice(-1)].id]][0])*0.05
-				MinOffset[trSelected[tr].id.slice(-1)]+=(limits[units[data[trSelected[tr].id.slice(-1)].id]][1]-limits[units[data[trSelected[tr].id.slice(-1)].id]][0])*0.05
+				keyLabel = trSelected[tr].id.slice(-1)
+				MaxOffset[keyLabel]+=(limits[units[data[keyLabel].id]][1]-limits[units[data[keyLabel].id]][0])*0.05
+				MinOffset[keyLabel]+=(limits[units[data[keyLabel].id]][1]-limits[units[data[keyLabel].id]][0])*0.05
 			}
 		} else if (UpOrDown == 'down') {
 			for (tr=0;tr<trSelected.length;tr++) {
-				MaxOffset[trSelected[tr].id.slice(-1)]-=(limits[units[data[trSelected[tr].id.slice(-1)].id]][1]-limits[units[data[trSelected[tr].id.slice(-1)].id]][0])*0.05
-				MinOffset[trSelected[tr].id.slice(-1)]-=(limits[units[data[trSelected[tr].id.slice(-1)].id]][1]-limits[units[data[trSelected[tr].id.slice(-1)].id]][0])*0.05
+				keyLabel = trSelected[tr].id.slice(-1)
+				MaxOffset[keyLabel]-=(limits[units[data[keyLabel].id]][1]-limits[units[data[keyLabel].id]][0])*0.05
+				MinOffset[keyLabel]-=(limits[units[data[keyLabel].id]][1]-limits[units[data[keyLabel].id]][0])*0.05
 			}
 		}
 	} else { // apply changing to all plots
@@ -638,13 +670,15 @@ function Zooming(InOrOut) {
 	if (trSelected.length > 0) { //there is a plot selected
 		if (InOrOut == 'in') { // (+)
 			for (tr=0;tr<trSelected.length;tr++) {
-				MaxOffset[trSelected[tr].id.slice(-1)]-=(limits[units[data[trSelected[tr].id.slice(-1)].id]][1]-limits[units[data[trSelected[tr].id.slice(-1)].id]][0])*0.05
-				MinOffset[trSelected[tr].id.slice(-1)]+=(limits[units[data[trSelected[tr].id.slice(-1)].id]][1]-limits[units[data[trSelected[tr].id.slice(-1)].id]][0])*0.05
+				keyLabel = trSelected[tr].id.slice(-1)
+				MaxOffset[keyLabel]-=(limits[units[data[keyLabel].id]][1]-limits[units[data[keyLabel].id]][0])*0.05
+				MinOffset[keyLabel]+=(limits[units[data[keyLabel].id]][1]-limits[units[data[keyLabel].id]][0])*0.05
 			}
 		} else if (InOrOut == 'out') { // (-)
 			for (tr=0;tr<trSelected.length;tr++) {
-				MaxOffset[trSelected[tr].id.slice(-1)]+=(limits[units[data[trSelected[tr].id.slice(-1)].id]][1]-limits[units[data[trSelected[tr].id.slice(-1)].id]][0])*0.05
-				MinOffset[trSelected[tr].id.slice(-1)]-=(limits[units[data[trSelected[tr].id.slice(-1)].id]][1]-limits[units[data[trSelected[tr].id.slice(-1)].id]][0])*0.05
+				keyLabel = trSelected[tr].id.slice(-1)
+				MaxOffset[keyLabel]+=(limits[units[data[keyLabel].id]][1]-limits[units[data[keyLabel].id]][0])*0.05
+				MinOffset[keyLabel]-=(limits[units[data[keyLabel].id]][1]-limits[units[data[keyLabel].id]][0])*0.05
 			}
 		}
 	} else { // apply zooming to all plots
@@ -688,10 +722,10 @@ function tick(seconds)
 	secs %= 3600;
 	var mns = Math.floor( secs / 60 );
 	secs %= 60;
-	// var Time = ( hrs < 10 ? "0" : "" ) + hrs
-				// + ":" + ( mns < 10 ? "0" : "" ) + mns
-				// + ":" + ( secs < 10 ? "0" : "" ) + secs;
-	var Time = ( mns < 10 ? "0" : "" ) + mns
+	var Time = ( hrs < 10 ? "0" : "" ) + hrs
+				 + ":" + ( mns < 10 ? "0" : "" ) + mns
+				 //+ ":" + ( secs < 10 ? "0" : "" ) + secs;
+	//var Time = ( mns < 10 ? "0" : "" ) + mns
 				+ ":" + ( secs < 10 ? "0" : "" ) + Math.floor(secs);
     document.getElementById("ELAPSED").innerHTML = Time;
 }
@@ -721,6 +755,7 @@ function exit() {
 }
 
 function DevicesPage() {
+	$("#BackDevices").hide();
     // $("#contentConfig").addClass('animated flipInY') 
 	$("#configurations").hide()
 	$("#configurationsDevices").show()
@@ -770,4 +805,5 @@ function SearchDevices(Dev) {
 		$("#configurationsDevices").hide()
 		$("#configurations").show()
 	})
+	$("#BackDevices").show();
 }

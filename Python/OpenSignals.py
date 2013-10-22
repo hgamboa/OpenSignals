@@ -188,7 +188,7 @@ def StartAcquisition(protocolReactor):
 	filename = os.path.join(INSDIR+'/Python/temp', StartTime.strftime("%Y%m%d-%H%M%S")+'-record%s'%id+'.hdf5')
 	# Creates HDF5 file to save signals in real time
 	fid = h5db.hdf(filename, 'w')
-	header = {'id': id, 'date': datetime.datetime.utcnow().isoformat()}
+	header = {'MAC': CPTH.macAddress, 'date': datetime.datetime.utcnow().isoformat()}
 	fid.addInfo(header)
 	signalsRT = {}
 	blockShape = (CPTH.nSamples,)
@@ -221,7 +221,7 @@ def StopAcquisition():
 	import datetime
 	EndTime = datetime.datetime.now()
 	CPTH.child.send('END')
-	CPTH.RT={}
+	#CPTH.RT={}
 	return "printMessage('Stop acquisition')"
 
 def saveDigitalOutput(data):
@@ -252,40 +252,53 @@ def listHDF5Signals(file):
 			if n[0] == 'signals' :
 				signals.append(name) 
 	file.visititems(func)
+	signals.sort()
 	return signals
 
+def checkFile(path,file,type):
+	check = os.path.exists(path+'/'+file+'.'+type)
+	return "FileExists("+str(check).lower()+")"
+	
 def saveFile(path,file,type):
-	global CPTH
-	file.decode("utf-8","ignore")
-	if type=="txt":
-		if file[-4:] == '.txt': file = file[:-4]
-		f=h5py.File(CPTH.filename);
-		#Txt File
-		mdata = f.attrs['json']
-		head = eval(mdata)
-		
-		h = []
-		FinalArray = []
-		sig = listHDF5Signals(f)
-		for s in sig:
-			h.append(s.split('/')[-1])
-			if len(FinalArray) == 0:
-				FinalArray = f[s].value.reshape(len(f[s].value),1)
-			else:
-				FinalArray = numpy.hstack((FinalArray,f[s].value.reshape(len(f[s].value),1)))
-		head['ChannelsOrder'] = h
-		numpy.savetxt(path+'/'+file+'.txt',FinalArray,fmt='%0d',delimiter='\t',header=json.dumps(head))
-		f.close()
-	#hdf5 file
-	else:
-		if file[-5:] == '.hdf5': file = file[:-5]
-		shutil.copy(CPTH.filename,os.path.join(path,file+'.hdf5'))
-		f = h5db.hdf(os.path.join(path,file+'.hdf5'))
-		mdata = f.getInfo()['header']
-		mdata['name'] = file
-		f.addInfo(mdata)
-		f.close()
-	return 'printMessage("saved")'
+	try:
+		global CPTH
+		file.decode("utf-8","ignore")
+		if type=="txt":
+			if file[-4:] == '.txt': file = file[:-4]
+			f=h5py.File(CPTH.filename);
+			#Txt File
+			mdata = f.attrs['json']
+			head = eval(mdata)
+			sig = listHDF5Signals(f)
+			FinalArray = numpy.zeros((len(f[sig[0]].value),len(sig)))
+			h = [None] * len(sig)
+			for s in sig:
+				if 'SeqN' in s:
+					FinalArray[:,0] = f[s].value
+					h[0] = s.split('/')[-1]
+				elif 'Digital' in s:
+					d = s.split('/')[-1][-1]
+					FinalArray[:,int(d)+1] = f[s].value
+					h[int(d)+1] = s.split('/')[-1]
+				elif 'Analog' in s:
+					a = s.split('/')[-2][-1]
+					FinalArray[:,int(a)+5] = f[s].value
+					h[int(a)+5] = s.split('/')[-1]
+			head['ChannelsOrder'] = h
+			numpy.savetxt(path+'/'+file+'.txt',FinalArray,fmt='%0d',delimiter='\t',header=json.dumps(head))
+			f.close()
+		#hdf5 file
+		else:
+			if file[-5:] == '.hdf5': file = file[:-5]
+			shutil.copy(CPTH.filename,os.path.join(path,file+'.hdf5'))
+			f = h5db.hdf(os.path.join(path,file+'.hdf5'))
+			mdata = f.getInfo()['header']
+			mdata['name'] = file
+			f.addInfo(mdata)
+			f.close()
+	except Exception:
+		print traceback.format_exc()
+	return 'FileSaved()'
 
 def changeXScale(UpOrDown):
 	global CPTH
@@ -358,12 +371,12 @@ if __name__=='__main__':
 			os.remove(pathStd+'/temp'+'/'+i)
 	try:
 		# Launch WebServer
-		ip_addr, port = "127.0.0.1", 9000 # socket.gethostbyname(socket.getfqdn()) #
+		ip_addr, port = "127.0.0.1", 9001 # socket.gethostbyname(socket.getfqdn()) #
 		print "Listening at port %s of %s\n"%(port, ip_addr)
-		pathToHTML = "\"file:///"+ os.path.abspath('OpenSignals.html')+"\""
-
+ 
 		connector = reactor.listenTCP(port, WebSocketFactory(VSFactory())) # console to html communication
-		os.system('start chrome\GoogleChromePortable.exe --allow-file-access-from-files -kiosk '+pathToHTML)
+		#os.system('start C:\OpenSignals\chrome\GoogleChromePortable.exe --allow-file-access-from-files -kiosk file:///C:/Users/Priscila%20Alves/Dropbox/WORK/PROJECTS/BIT/SignalBIT/SignalBIT%20REALTIME/SignalBIT_recent/SignalBIT.html')
+		os.system('start chrome\GoogleChromePortable.exe --allow-file-access-from-files -kiosk file:///C:\\OpenSignals' + os.path.sep + 'OpenSignals.html')
 		
 		reactor.run()
 

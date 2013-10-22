@@ -13,7 +13,7 @@
     
 	<script language="javascript" type="text/javascript" src="OpenSignals.js"></script>
 	<script type="text/javascript">
-		var ws = new WebSocket("ws://localhost:9000 ");
+		var ws = new WebSocket("ws://localhost:9001 ");
 		
 		var options = {
 			xaxis: { show:false,color: 'grey',tickColor:"#C2C2C2",tickSize:50}, 
@@ -93,7 +93,7 @@
 	<div class="overlay" style="display:none"></div>
 	<div id="page" >
 		<div id="PageTitle" style="position:relative;text-align:center;z-index:50;margin:0 auto;width:33%;">
-				<img id="MenuLogo" src="Img/logo.png" height="9%" style="margin-top:27px"/>
+				<img id="MenuLogo" src="Img/logo.png" height="9%" style="margin-top:27px;display:none"/>
 		</div>
 		<div id="load" style="display:none;position: absolute;margin: 0 auto;width: 20px;height:20px;background-image:url(Img/new/load.gif);background-size: 15px 15px;background-repeat: no-repeat;background-position: center;top: 6.5%;left: 60.5%;">
 		</div>
@@ -112,7 +112,7 @@
 		
 		<div id="MainWelcome">
 			
-			<div id="boxToFlip" class="boxFlip" >
+			<div id="boxToFlip" class="boxFlip" style="display:none" >
 			<div id="exit" style="position:absolute;top:163px;left:52px;z-index:9999;" onClick="exit()">
 					<img id="exitImage" title="Exit" src="Img/new/on.png" height="70px"/>
 			</div>
@@ -214,7 +214,8 @@
 					<img id="goBack" src="Img/backF.png" width="50px" height="50px" style="display:none"/>
 				</div>
 			</div>
-			<div id="popMessage" style="display:none;width: 50%;text-align: center;margin: 0 auto;color: red;font-weight: bold;z-index:51"><p style="margin-top:2px">PLEASE INSERT FILE NAME</p></div>
+			<div id="popMessage" style="display:none;position:relative;top:-27px;width: 460px;text-align: center;margin: 0 auto;color: red;font-weight: bold;z-index:51"><p style="margin-top:2px">PLEASE INSERT FILE NAME</p></div>
+			<div id="popMessageSaving" style="display:none;position:absolute;top:670px;width: 100%;text-align: center;margin: 0 auto;color: red;font-weight: bold;z-index:51"><p style="margin-top:2px">SAVING...</p></div>
 		</div>
 	<div style="position:absolute;width:100%;height:100%;top:0px;left:0px;">
 	<div id="configurations" style="display:none">
@@ -322,7 +323,7 @@
 			
 			</table>
 		</div>
-		<img id="BackDevices" src="Img/backF.png" onclick="$('#configurationsDevices').hide();$('#configurations').show();$('#newDevices').empty()" width="50px" height="50px" style="position:absolute;bottom:9%;left:45%;" />
+		<img id="BackDevices" src="Img/backF.png" onclick="$('#configurationsDevices').hide();$('#configurations').show();$('#newDevices').empty()" width="50px" height="50px" style="display:none;position:absolute;bottom:9%;left:45%;" />
 	</div>
  </body>
 </html>
