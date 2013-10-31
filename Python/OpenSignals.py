@@ -57,6 +57,7 @@ class VS(protocol.Protocol):
 		os.system("exit")
 		print "Connection LOST!"
 		# CPTH.exit()
+		os.system('Taskkill /IM GoogleChromePortable.exe /F')
 		CPTH._Thread__stop()
 		return
 		
